@@ -2,7 +2,7 @@ type Piece = "X" | "O" | " ";
 type Board = Piece[];
 const board: Board = [" ", " ", " ", " ", " ", " ", " ", " ", " "];
 const validInputs = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const usedInputs: number[] = [];
+const freeInputs: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 let turnNumber = 1;
 const winConditions = [
   [0, 1, 2],
@@ -46,25 +46,53 @@ const checkForWin = (board: Board, turnNumber: number) => {
 };
 
 const executeTurn = () => {
-  const input = prompt(
-    `Player ${getPlayerByTurn(
-      turnNumber
-    )}, input a number from 1 to 9 to put your mark on the board`
-  );
-  const inputNumber = Number(input);
-  if (validInputs.includes(inputNumber) && !usedInputs.includes(inputNumber)) {
-    board[inputNumber - 1] = getPlayerByTurn(turnNumber);
-    usedInputs.push(inputNumber);
-    if (checkForWin(board, turnNumber)) {
-      console.log(`Looks like Player ${getPlayerByTurn(turnNumber)} won!`);
-      return;
-    }
-    printBoard(board);
-    turnNumber++;
-    executeTurn();
-  } else {
-    console.log("not a valid input, try again");
-    executeTurn();
+  if (getPlayerByTurn(turnNumber) === "O") {
+    const randomMove =
+      freeInputs[Math.floor(Math.random() * freeInputs.length)];
+    board[randomMove - 1] = getPlayerByTurn(turnNumber);
+    const index = freeInputs.indexOf(randomMove);
+    freeInputs.splice(index, 1);
   }
+
+  if (getPlayerByTurn(turnNumber) === "X") {
+    const input = prompt(
+      `Player ${getPlayerByTurn(
+        turnNumber
+      )}, input a number from 1 to 9 to put your mark on the board`
+    );
+    const inputNumber = Number(input);
+
+    if (validInputs.includes(inputNumber) && freeInputs.includes(inputNumber)) {
+      board[inputNumber - 1] = getPlayerByTurn(turnNumber);
+      const index = freeInputs.indexOf(inputNumber);
+      freeInputs.splice(index, 1);
+    } else {
+      console.log("not a valid input, try again");
+      executeTurn();
+    }
+  }
+  printBoard(board);
+  if (checkForWin(board, turnNumber)) {
+    console.log(`Player ${getPlayerByTurn(turnNumber)} Won!`);
+    return;
+  }
+  turnNumber++;
+  executeTurn();
+  // if (validInputs.includes(inputNumber) && freeInputs.includes(inputNumber)) {
+  //   board[inputNumber - 1] = getPlayerByTurn(turnNumber);
+  //   console.log(freeInputs);
+  //   const index = freeInputs.indexOf(inputNumber);
+  //   freeInputs.splice(index, 1);
+  //   console.log(freeInputs);
+  //   if (checkForWin(board, turnNumber)) {
+  //     console.log(`Looks like Player ${getPlayerByTurn(turnNumber)} won!`);
+  //     return;
+  //   }
+  //   printBoard(board);
+  //   turnNumber++;
+  //   executeTurn();
+  // } else {
+
+  // }
 };
 executeTurn();
